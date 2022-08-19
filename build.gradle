@@ -17,9 +17,9 @@ buildscript {
     ext {
         opensearch_group = "org.opensearch"
         isSnapshot = "true" == System.getProperty("build.snapshot", "true")
-        opensearch_version = System.getProperty("opensearch.version", "2.2.0-SNAPSHOT")
+        opensearch_version = System.getProperty("opensearch.version", "2.2.1-SNAPSHOT")
         buildVersionQualifier = System.getProperty("build.version_qualifier", "")
-        // 2.2.0-SNAPSHOT -> 2.2.0.0-SNAPSHOT
+        // 2.2.1-SNAPSHOT -> 2.2.1.0-SNAPSHOT
         version_tokens = opensearch_version.tokenize('-')
         opensearch_build = version_tokens[0] + '.0'
         plugin_no_snapshot = opensearch_build
@@ -38,9 +38,9 @@ buildscript {
                 '/latest/linux/x64/tar/builds/opensearch/plugins/opensearch-job-scheduler-' + plugin_no_snapshot + '.zip'
         anomaly_detection_build_download = 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/' + opensearch_no_snapshot +
                 '/latest/linux/x64/tar/builds/opensearch/plugins/opensearch-anomaly-detection-' + plugin_no_snapshot + '.zip'
-        bwcOpenSearchADDownload = 'https://ci.opensearch.org/ci/dbc/bundle-build/1.1.0/20210930/linux/x64/builds/opensearch/plugins/' +
+        bwcOpenSearchADDownload = 'https://ci.opensearch.org/ci/dbc/bundle-build/1.1.0/2.2.1930/linux/x64/builds/opensearch/plugins/' +
                 'opensearch-anomaly-detection-1.1.0.0.zip'
-        bwcOpenSearchJSDownload = 'https://ci.opensearch.org/ci/dbc/bundle-build/1.1.0/20210930/linux/x64/builds/opensearch/plugins/' +
+        bwcOpenSearchJSDownload = 'https://ci.opensearch.org/ci/dbc/bundle-build/1.1.0/2.2.1930/linux/x64/builds/opensearch/plugins/' +
                 'opensearch-job-scheduler-1.1.0.0.zip'
 
         // gradle build won't print logs during test by default unless there is a failure.
