@@ -38,10 +38,6 @@ buildscript {
                 '/latest/linux/x64/tar/builds/opensearch/plugins/opensearch-job-scheduler-' + plugin_no_snapshot + '.zip'
         anomaly_detection_build_download = 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/' + opensearch_no_snapshot +
                 '/latest/linux/x64/tar/builds/opensearch/plugins/opensearch-anomaly-detection-' + plugin_no_snapshot + '.zip'
-        bwcOpenSearchADDownload = 'https://ci.opensearch.org/ci/dbc/bundle-build/1.1.0/20210930/linux/x64/builds/opensearch/plugins/' +
-                'opensearch-anomaly-detection-1.1.0.0.zip'
-        bwcOpenSearchJSDownload = 'https://ci.opensearch.org/ci/dbc/bundle-build/1.1.0/20210930/linux/x64/builds/opensearch/plugins/' +
-                'opensearch-job-scheduler-1.1.0.0.zip'
 
         // gradle build won't print logs during test by default unless there is a failure.
         // It is useful to record intermediately information like prediction precision and recall.
@@ -372,91 +368,20 @@ task integTestRemote(type: RestIntegTestTask) {
     }
 }
 
-String bwcVersion = "1.1.0.0"
+String bwcVersion = "1.3.6.0"
 String baseName = "adBwcCluster"
-String bwcFilePath = "src/test/resources/org/opensearch/ad/bwc/"
-String bwcJobSchedulerPath = bwcFilePath + "job-scheduler/"
-String bwcAnomalyDetectionPath = bwcFilePath + "anomaly-detection/"
 
 2.times {i -> 
     testClusters {
         "${baseName}$i" {
             testDistribution = "ARCHIVE"
-            versions = ["1.1.0", opensearch_version]
+            versions = ["1.3.6", "2.4.0"]
             numberOfNodes = 3
-            plugin(provider(new Callable<RegularFile>(){
-                @Override
-                RegularFile call() throws Exception {
-                    return new RegularFile() {
-                        @Override
-                        File getAsFile() {
-                            if (new File("$project.rootDir/$bwcFilePath/job-scheduler/$bwcVersion").exists()) {
-                                project.delete(files("$project.rootDir/$bwcFilePath/job-scheduler/$bwcVersion"))
-                            }
-                            project.mkdir bwcJobSchedulerPath + bwcVersion
-                            ant.get(src: bwcOpenSearchJSDownload,
-                                    dest: bwcJobSchedulerPath + bwcVersion,
-                                    httpusecaches: false)
-                            return fileTree(bwcJobSchedulerPath + bwcVersion).getSingleFile()
-                        }
-                    }
-                }
-            }))
-            plugin(provider(new Callable<RegularFile>(){
-                @Override
-                RegularFile call() throws Exception {
-                    return new RegularFile() {
-                        @Override
-                        File getAsFile() {
-                            if (new File("$project.rootDir/$bwcFilePath/anomaly-detection/$bwcVersion").exists()) {
-                                project.delete(files("$project.rootDir/$bwcFilePath/anomaly-detection/$bwcVersion"))
-                            }
-                            project.mkdir bwcAnomalyDetectionPath + bwcVersion
-                            ant.get(src: bwcOpenSearchADDownload,
-                                    dest: bwcAnomalyDetectionPath + bwcVersion,
-                                    httpusecaches: false)
-                            return fileTree(bwcAnomalyDetectionPath + bwcVersion).getSingleFile()
-                        }
-                    }
-                }
-            }))
             setting 'path.repo', "${buildDir}/cluster/shared/repo/${baseName}"
             setting 'http.content_type.required', 'true'
         }
     }
 }
-
-List<Provider<RegularFile>> plugins = [
-        provider(new Callable<RegularFile>(){
-            @Override
-            RegularFile call() throws Exception {
-                return new RegularFile() {
-                    @Override
-                    File getAsFile() {
-                        if (new File("$project.rootDir/$bwcFilePath/job-scheduler/$opensearch_build").exists()) {
-                            project.delete(files("$project.rootDir/$bwcFilePath/job-scheduler/$opensearch_build"))
-                        }
-                        project.mkdir bwcJobSchedulerPath + opensearch_build
-                        ant.get(src: job_scheduler_build_download,
-                                dest: bwcJobSchedulerPath + opensearch_build,
-                                httpusecaches: false)
-                        return fileTree(bwcJobSchedulerPath + opensearch_build).getSingleFile()
-                    }
-                }
-            }
-        }),
-        provider(new Callable<RegularFile>(){
-            @Override
-            RegularFile call() throws Exception {
-                return new RegularFile() {
-                    @Override
-                    File getAsFile() {
-                    	return fileTree(bwcFilePath + "anomaly-detection/" + project.version).getSingleFile()
-		    }
-                }
-            }
-        })
-    ]
 
 // Creates 2 test clusters with 3 nodes of the old version. 
 2.times {i -> 
@@ -480,7 +405,7 @@ task "${baseName}#mixedClusterTask"(type: StandaloneRestIntegTestTask) {
     useCluster testClusters."${baseName}0"
     dependsOn "${baseName}#oldVersionClusterTask0"
     doFirst {
-      testClusters."${baseName}0".upgradeNodeAndPluginToNextVersion(plugins)
+      testClusters."${baseName}0".nextNodeToNextVersion()
     }
     filter {
         includeTestsMatching "org.opensearch.ad.bwc.*IT"
@@ -499,7 +424,7 @@ task "${baseName}#twoThirdsUpgradedClusterTask"(type: StandaloneRestIntegTestTas
     dependsOn "${baseName}#mixedClusterTask"
     useCluster testClusters."${baseName}0"
     doFirst {
-      testClusters."${baseName}0".upgradeNodeAndPluginToNextVersion(plugins)
+      testClusters."${baseName}0".nextNodeToNextVersion()
     }
     filter {
         includeTestsMatching "org.opensearch.ad.bwc.*IT"
@@ -518,7 +443,7 @@ task "${baseName}#rollingUpgradeClusterTask"(type: StandaloneRestIntegTestTask) 
     dependsOn "${baseName}#twoThirdsUpgradedClusterTask"
     useCluster testClusters."${baseName}0"
     doFirst {
-      testClusters."${baseName}0".upgradeNodeAndPluginToNextVersion(plugins)
+      testClusters."${baseName}0".nextNodeToNextVersion()
     }
     filter {
         includeTestsMatching "org.opensearch.ad.bwc.*IT"
@@ -537,7 +462,7 @@ task "${baseName}#fullRestartClusterTask"(type: StandaloneRestIntegTestTask) {
     dependsOn "${baseName}#oldVersionClusterTask1"
     useCluster testClusters."${baseName}1"
     doFirst {
-      testClusters."${baseName}1".upgradeAllNodesAndPluginsToNextVersion(plugins)
+      testClusters."${baseName}1".goToNextVersion()
     }
     filter {
         includeTestsMatching "org.opensearch.ad.bwc.*IT"
