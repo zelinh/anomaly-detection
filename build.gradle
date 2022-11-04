@@ -372,7 +372,7 @@ task integTestRemote(type: RestIntegTestTask) {
     }
 }
 
-String bwcVersion = "1.1.0.0"
+String bwcVersion = "1.3.2.0"
 String baseName = "adBwcCluster"
 String bwcFilePath = "src/test/resources/org/opensearch/ad/bwc/"
 String bwcJobSchedulerPath = bwcFilePath + "job-scheduler/"
@@ -382,7 +382,7 @@ String bwcAnomalyDetectionPath = bwcFilePath + "anomaly-detection/"
     testClusters {
         "${baseName}$i" {
             testDistribution = "ARCHIVE"
-            versions = ["1.1.0", "2.4.0"]
+            versions = ["1.3.2", "2.4.0"]
             numberOfNodes = 3
             nodes.each { node ->
                 node.extraConfigFile("kirk.pem", file("src/test/resources/security/kirk.pem"))
