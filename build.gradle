@@ -379,9 +379,10 @@ String baseName = "adBwcCluster"
             numberOfNodes = 3
             nodes.each { node ->
                 def plugins = node.plugins
-                def firstPlugin = plugins.get(0)
-                plugins.remove(0)
-                plugins.add(firstPlugin)
+                project.logger.info('******************************Plugins****************************************' + plugins)
+//                def firstPlugin = plugins.get(0)
+//                plugins.remove(0)
+//                plugins.add(firstPlugin)
 
                 node.extraConfigFile("kirk.pem", file("src/test/resources/security/kirk.pem"))
                 node.extraConfigFile("kirk-key.pem", file("src/test/resources/security/kirk-key.pem"))
