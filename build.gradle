@@ -38,6 +38,10 @@ buildscript {
                 '/latest/linux/x64/tar/builds/opensearch/plugins/opensearch-job-scheduler-' + plugin_no_snapshot + '.zip'
         anomaly_detection_build_download = 'https://ci.opensearch.org/ci/dbc/distribution-build-opensearch/' + opensearch_no_snapshot +
                 '/latest/linux/x64/tar/builds/opensearch/plugins/opensearch-anomaly-detection-' + plugin_no_snapshot + '.zip'
+        bwcOpenSearchADDownload = 'https://ci.opensearch.org/ci/dbc/bundle-build/1.1.0/20210930/linux/x64/builds/opensearch/plugins/' +
+                'opensearch-anomaly-detection-1.1.0.0.zip'
+        bwcOpenSearchJSDownload = 'https://ci.opensearch.org/ci/dbc/bundle-build/1.1.0/20210930/linux/x64/builds/opensearch/plugins/' +
+                'opensearch-job-scheduler-1.1.0.0.zip'
 
         // gradle build won't print logs during test by default unless there is a failure.
         // It is useful to record intermediately information like prediction precision and recall.
@@ -368,22 +372,19 @@ task integTestRemote(type: RestIntegTestTask) {
     }
 }
 
-String bwcVersion = "1.3.6.0"
+String bwcVersion = "1.1.0.0"
 String baseName = "adBwcCluster"
+String bwcFilePath = "src/test/resources/org/opensearch/ad/bwc/"
+String bwcJobSchedulerPath = bwcFilePath + "job-scheduler/"
+String bwcAnomalyDetectionPath = bwcFilePath + "anomaly-detection/"
 
 2.times {i -> 
     testClusters {
         "${baseName}$i" {
             testDistribution = "ARCHIVE"
-            versions = ["1.3.6", "2.4.0"]
+            versions = ["1.1.0", "2.4.0"]
             numberOfNodes = 3
             nodes.each { node ->
-//                def plugins = node.plugins
-//                project.logger.info('******************************Plugins****************************************' + plugins)
-//                def firstPlugin = plugins.get(0)
-//                plugins.remove(0)
-//                plugins.add(firstPlugin)
-
                 node.extraConfigFile("kirk.pem", file("src/test/resources/security/kirk.pem"))
                 node.extraConfigFile("kirk-key.pem", file("src/test/resources/security/kirk-key.pem"))
                 node.extraConfigFile("esnode.pem", file("src/test/resources/security/esnode.pem"))
