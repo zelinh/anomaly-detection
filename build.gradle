@@ -384,7 +384,7 @@ String bwcAnomalyDetectionPath = bwcFilePath + "anomaly-detection/"
         "${baseName}$i" {
             testDistribution = "ARCHIVE"
             numberOfNodes = 3
-            if (project.properties['bundleDownload']) {
+            if (project.findProperty('bundleDownload') != null && project.properties['bundleDownload'].toBoolean()) {
                 versions = ["1.3.2", "2.4.0"]
                 nodes.each { node ->
                     node.extraConfigFile("kirk.pem", file("src/test/resources/security/kirk.pem"))
@@ -508,7 +508,7 @@ List<Provider<RegularFile>> plugins = [
 task "${baseName}#mixedClusterTask"(type: StandaloneRestIntegTestTask) {
     useCluster testClusters."${baseName}0"
     dependsOn "${baseName}#oldVersionClusterTask0"
-    if (project.findProperty('bundleDownload') != null && project.properties['bundleDownload']){
+    if (project.findProperty('bundleDownload') != null && project.properties['bundleDownload'].toBoolean()){
         doFirst {
             testClusters."${baseName}0".nextNodeToNextVersion()
         }
@@ -534,7 +534,7 @@ task "${baseName}#mixedClusterTask"(type: StandaloneRestIntegTestTask) {
 task "${baseName}#twoThirdsUpgradedClusterTask"(type: StandaloneRestIntegTestTask) {
     dependsOn "${baseName}#mixedClusterTask"
     useCluster testClusters."${baseName}0"
-    if (project.findProperty('bundleDownload') != null && project.properties['bundleDownload']){
+    if (project.findProperty('bundleDownload') != null && project.properties['bundleDownload'].toBoolean()){
         doFirst {
             testClusters."${baseName}0".nextNodeToNextVersion()
         }
@@ -559,7 +559,7 @@ task "${baseName}#twoThirdsUpgradedClusterTask"(type: StandaloneRestIntegTestTas
 task "${baseName}#rollingUpgradeClusterTask"(type: StandaloneRestIntegTestTask) {
     dependsOn "${baseName}#twoThirdsUpgradedClusterTask"
     useCluster testClusters."${baseName}0"
-    if (project.findProperty('bundleDownload') != null && project.properties['bundleDownload']){
+    if (project.findProperty('bundleDownload') != null && project.properties['bundleDownload'].toBoolean()){
         doFirst {
             testClusters."${baseName}0".nextNodeToNextVersion()
         }
