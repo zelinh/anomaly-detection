@@ -372,8 +372,9 @@ task integTestRemote(type: RestIntegTestTask) {
     }
 }
 
-String bwcVersion = "1.1.0.0"
+String bwcMinVersion = "1.1.0.0"
 String bwcBundleVersion = "1.3.2.0"
+String bwcVersion = (project.findProperty('bundleDownload') != null && project.properties['bundleDownload'].toBoolean()) ? bwcBundleVersion : bwcMinVersion
 String baseName = "adBwcCluster"
 String bwcFilePath = "src/test/resources/org/opensearch/ad/bwc/"
 String bwcJobSchedulerPath = bwcFilePath + "job-scheduler/"
@@ -615,6 +616,7 @@ task bwcTestSuite(type: StandaloneRestIntegTestTask) {
 task bwcTestSuiteBundle {
     println project.findProperty('bundleDownload')
     println project.properties['bundleDownload']
+    println bwcVersion
         if (project.findProperty('bundleDownload') != null && project.properties['bundleDownload'].toBoolean()) {
             println "get into the conditional check"
         } else {
