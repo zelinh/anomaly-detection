@@ -585,7 +585,7 @@ task "${baseName}#rollingUpgradeClusterTask"(type: StandaloneRestIntegTestTask) 
 task "${baseName}#fullRestartClusterTask"(type: StandaloneRestIntegTestTask) {
     dependsOn "${baseName}#oldVersionClusterTask1"
     useCluster testClusters."${baseName}1"
-    if (project.findProperty('bundleDownload') != null && project.properties['bundleDownload']){
+    if (project.findProperty('bundleDownload') != null && project.properties['bundleDownload'].toBoolean()){
         doFirst {
             testClusters."${baseName}1".goToNextVersion()
         }
@@ -615,7 +615,7 @@ task bwcTestSuite(type: StandaloneRestIntegTestTask) {
 task bwcTestSuiteBundle {
     println project.findProperty('bundleDownload')
     println project.properties['bundleDownload']
-        if (project.properties['bundleDownload'].toBoolean()) {
+        if (project.findProperty('bundleDownload') != null && project.properties['bundleDownload'].toBoolean()) {
             println "get into the conditional check"
         } else {
             println "Not into the conditions"
