@@ -388,7 +388,7 @@ String bwcAnomalyDetectionPath = bwcFilePath + "anomaly-detection/"
             numberOfNodes = 3
             if (project.findProperty('customDistributionDownloadType') != null &&
                     project.properties['customDistributionDownloadType'] == "bundle") {
-                versions = ["1.3.2", "2.4.0"]
+                versions = ["1.3.2", "2.4.1"]
                 nodes.each { node ->
                     node.extraConfigFile("kirk.pem", file("src/test/resources/security/kirk.pem"))
                     node.extraConfigFile("kirk-key.pem", file("src/test/resources/security/kirk-key.pem"))
